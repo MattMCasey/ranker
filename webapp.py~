@@ -1,0 +1,58 @@
+from flask import Flask, request, render_template, session
+app = Flask(__name__)
+import pandas as pd
+import numpy as np
+import graphlab as gl
+from pymongo import MongoClient
+import time
+from pprint import pprint
+from flask import Flask
+import recommender as rec
+app.secret_key = 'datascience'
+
+model = rec.Recommender()
+
+#Post Data Request:
+#@app.route("/")
+@app.route('/')
+@app.route('/index')
+def index():
+    '''
+    Creates an index page with plaintext submission.
+    '''
+    return render_template('home.html')
+# Register Submission into Database
+
+@app.route('/recs', methods=['POST'] )
+def show_five():
+    user_id = request.form['user_id']
+    session["user_id"]=user_id
+    # page = 'The Fraud Seer predicts:\n {0}'
+    # model = FraudModel("./fraud.pkl")
+    preds, user_id = model.five_recs(user_id)
+    session["user_id"]=user_id
+    # risk = model.risk(pred)
+    return render_template('recs.html',
+                            pred = preds,
+                            user_id = user_id
+                            )
+
+
+@app.route('/top100', methods=['GET'] )
+def top100():
+    user_id=session['user_id']
+    #text = request.args[user_id]
+    preds = model.display_top_100(user_id)
+    return render_template('top100.html',
+                            user_id = user_id,
+                            pred = preds)
+
+
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    helpful = request.form['helpful']
+    user_id = session['user_id']
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)

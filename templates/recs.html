@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Board Game Recommender</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+    <body>
+      <div class="container">
+      <h1>Recommendations for {{user_id}}</h1>
+
+      {% if user_id == 'none' %}
+      <p>We don't have records for that username. That could be because:</p>
+        <ol>
+          <li>The name was entered incorrectly</li>
+          <li>That person doesn't have a BGG account</li>
+          <li>That person hasn't rated enough games in our database</li>
+        </ol>
+      </p>So, here are some games that most people agree are great.</p>
+      {% endif %}
+
+
+<table class="table table-striped">
+  <tbody>
+    {% for game in pred %}
+    <tr>
+        <td><b>{{game[0]}}</b></td>
+        <td><a href="{{game[1]}}">BGG</a></td>
+        <td><a href="{{game[2]}}">Amazon</a></td>
+    </tr>
+      {% endfor %}
+    </table>
+</div>
+
+<div class="container">
+    <table>
+      <tr>
+
+        <td>
+      <FORM>
+          <INPUT TYPE="button" onClick="history.go(0)" VALUE="See Five More for {{user_id}}">
+
+      </FORM>
+    </td>
+
+    <td>
+           <form action="/top100?user_id=''' + session['user_id'] + '''" method='GET'>
+          <input type="submit" value="See top 100 for {{user_id}}"/>
+          </form>
+    </td>
+
+    <td>
+	  <form action="/">
+	    <input type="submit" value="Change Username"/>
+	  </form>
+    </td>
+
+      </tr>
+    </div>
+    </body>
+</html>
