@@ -157,7 +157,8 @@ def update_club(club_id):
     this drives the update process
     returns Updated when extract_details and scrape_page return False
     """
-    for i in range(1, 100):
+    for i in range(1, 25):
+        print(i)
         if scrape_page(i, club_id) == False:
             return "Updated"
 
