@@ -96,6 +96,8 @@ def extract_details(line):
 
     bonus, base = award_points(place, size)
 
+    print(name, event, place)
+
     try:
         results.insert_one({
         'date':date,
