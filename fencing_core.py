@@ -325,7 +325,9 @@ def pull_fencer(fencer):
     last, first = fencer.split(',')
     firstLast = first[1:] + ' ' + last
 
-    return firstLast, list(results.find({'name':fencer},
+    # {'date': {'$gte': season_cutoff}},
+
+    return firstLast, list(results.find({'name':fencer, 'date': {'$gte': season_cutoff}},
                          {'_id':0,
                          'date': 1,
                          'tourney': 1,
