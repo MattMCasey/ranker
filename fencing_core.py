@@ -16,6 +16,8 @@ db = client['fencing']
 fencers = db['fencers']
 results = db['results']
 
+season_cutoff = datetime(2017, 6, 15)
+
 categories = [
 ['A', 'B'],
 ['C', 'D'],
@@ -179,6 +181,8 @@ def pull_club(club_set, weapon_set):
     filt = [
         {"$match": {
         "club": {'$in' : club_set}}},
+        {"$match": {
+        "date": {'$gte' : season_cutoff}}},
         {"$match": {
         "weapon": {'$in' : weapon_set}}},
 
