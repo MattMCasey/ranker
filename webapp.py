@@ -12,7 +12,7 @@ app.secret_key = 'datascience'
 
 #Post Data Request:
 #@app.route("/")
-@app.route('/')
+@app.route('/oldindex')
 @app.route('/index')
 def index():
     '''
@@ -65,10 +65,113 @@ def index():
 def fencer():
     fencer = request.args.get('fencer')
     name, preds = pull_fencer(fencer)
+    fencer = fencers.find_one({'name' : fencer})
     return render_template('fencer.html',
                             name = name,
+                            fencer = fencer,
                             pred = preds
                             )
+
+@app.route('/full_list', methods=['GET'] )
+def by_rating():
+    lookup = {'A   B': ['A', 'B'],
+              'C   D': ['C', 'D'],
+              'E   U': ['E', 'U'],
+              'Junior': [1999, 2005],
+              'Cadet': [2002, 2005],
+              'Y14': [2003, 2006],
+              'Y12': [2005, 2008],
+              'Y10': [2007, 2010],
+              'Overall': 'Overall'
+            }
+
+    group = request.args.get('group')
+    group = lookup[group]
+
+    if group == 'Overall':
+        name = group
+        preds = pull_club('MOE', 'Foil')
+        return render_template('category.html',
+                                rating = name,
+                                preds = preds
+                                )
+
+    elif type(group[0]) == str:
+        name = " + ".join(group)
+        preds = rating_groups(group, 'foil', pull_club('MOE', 'Foil'))
+        return render_template('category.html',
+                                rating = name,
+                                preds = preds
+                                )
+
+    elif type(group[0]) == int:
+        year_to_name = {
+        1999: 'Junior',
+        2002: 'Cadet',
+        2003: 'Y14',
+        2005: 'Y12',
+        2007: 'Y10',
+        }
+
+        name = year_to_name[group[0]]
+        preds = age_groups(group, pull_club('MOE', 'Foil'))
+        return render_template('category.html',
+                                rating = name,
+                                preds = preds
+                                )
+
+@app.route('/')
+def home5():
+    '''
+    Creates an index page with plaintext submission.
+    '''
+    categories = [
+    ['A', 'B'],
+    ['C', 'D'],
+    ['E', 'U'],
+    ]
+
+    byRank = []
+
+    for cat in categories:
+        header = " + ".join(cat)
+        piece = rating_groups(cat, 'foil', pull_club('MOE', 'Foil'))
+        if len(piece) > 5:
+            piece = piece[:5]
+        byRank.append([header, piece])
+
+    ageGroups = [
+    'Junior',
+     'Cadet',
+     'Y14',
+      'Y12',
+      'Y10']
+
+    ages = [
+    [1999, 2005],
+    [2002, 2005],
+    [2003, 2006],
+    [2005, 2008],
+    [2007, 2010]
+    ]
+
+    byAge = []
+
+    for age in ages:
+        piece = age_groups(age, pull_club('MOE', 'Foil'))
+        if len(piece) > 5:
+            piece = piece[:5]
+        byAge.append(piece)
+
+    #byAge=zip(ageGroups, byAge)
+
+    allClub = ['Overall', pull_club('MOE', 'Foil')[:5]]
+    chunk2 = [[ageGroups[x], byAge[x]] for x in range(3)]
+    chunk3 = [[ageGroups[x], byAge[x]] for x in range(3,5)] + [allClub]
+    batch = [byRank, chunk2, chunk3]
+
+    return render_template('5home.html',
+                            batch = batch)
 
 
 @app.route('/top100', methods=['GET'] )
