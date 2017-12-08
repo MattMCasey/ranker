@@ -148,8 +148,8 @@ def scrape_page(num, club_id):
 
     for i in range(len(odds)):
         try:
-            return extract_details(evens[i])
-            return extract_details(odds[i])
+            extract_details(evens[i])
+            extract_details(odds[i])
         except:
             return False
 
