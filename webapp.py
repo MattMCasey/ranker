@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session
+from flask import Flask, request, render_template, session, redirect
 app = Flask(__name__)
 #import pandas as pd
 #import numpy as np
@@ -28,7 +28,7 @@ def index():
 
     for cat in categories:
         header = " + ".join(cat)
-        byRank.append([header, rating_groups(cat, 'foil', pull_club('MOE', 'Foil'))])
+        byRank.append([header, rating_groups(cat, 'foil', pull_club(club, 'Foil'))])
 
     ageGroups = [
     'Junior',
@@ -48,11 +48,11 @@ def index():
     byAge = []
 
     for age in ages:
-        byAge.append(age_groups(age, pull_club('MOE', 'Foil')))
+        byAge.append(age_groups(age, pull_club(club, 'Foil')))
 
     byAge=zip(ageGroups, byAge)
 
-    pred = pull_club('MOE', 'Foil')
+    pred = pull_club(club, 'Foil')
     #print(pred)
     return render_template('top100.html',
                             #user_id = user_id,
@@ -74,9 +74,9 @@ def fencer():
 
 @app.route('/full_list', methods=['GET'] )
 def by_rating():
-    lookup = {'A   B': ['A', 'B'],
-              'C   D': ['C', 'D'],
-              'E   U': ['E', 'U'],
+    lookup = {'A B': ['A', 'B'],
+              'C D': ['C', 'D'],
+              'E U': ['E', 'U'],
               'Junior': [1999, 2005],
               'Cadet': [2002, 2005],
               'Y14': [2003, 2006],
@@ -85,21 +85,29 @@ def by_rating():
               'Overall': 'Overall'
             }
 
+    club = request.args.get('club')
     group = request.args.get('group')
+    weapon = request.args.get('weapon')
+    #print(weapon)
     group = lookup[group]
 
     if group == 'Overall':
         name = group
-        preds = pull_club('MOE', 'Foil')
+        preds = pull_club(club, weapon)
         return render_template('category.html',
+                                club = club,
+                                weapon = weapon,
                                 rating = name,
                                 preds = preds
                                 )
 
     elif type(group[0]) == str:
+        print(weapon)
         name = " + ".join(group)
-        preds = rating_groups(group, 'foil', pull_club('MOE', 'Foil'))
+        preds = rating_groups(group, weapon.lower(), pull_club(club, weapon))
         return render_template('category.html',
+                                weapon = weapon,
+                                club = club,
                                 rating = name,
                                 preds = preds
                                 )
@@ -114,8 +122,11 @@ def by_rating():
         }
 
         name = year_to_name[group[0]]
-        preds = age_groups(group, pull_club('MOE', 'Foil'))
+        preds = age_groups(group, pull_club(club, weapon))
+        print(weapon)
         return render_template('category.html',
+                                weapon = weapon,
+                                club = club,
                                 rating = name,
                                 preds = preds
                                 )
@@ -125,6 +136,7 @@ def home5():
     '''
     Creates an index page with plaintext submission.
     '''
+    club = request.args.get('club')
     categories = [
     ['A', 'B'],
     ['C', 'D'],
@@ -135,7 +147,7 @@ def home5():
 
     for cat in categories:
         header = " + ".join(cat)
-        piece = rating_groups(cat, 'foil', pull_club('MOE', 'Foil'))
+        piece = rating_groups(cat, 'foil', pull_club(club, 'Foil'))
         if len(piece) > 5:
             piece = piece[:5]
         byRank.append([header, piece])
@@ -158,14 +170,14 @@ def home5():
     byAge = []
 
     for age in ages:
-        piece = age_groups(age, pull_club('MOE', 'Foil'))
+        piece = age_groups(age, pull_club(club, 'Foil'))
         if len(piece) > 5:
             piece = piece[:5]
         byAge.append(piece)
 
     #byAge=zip(ageGroups, byAge)
 
-    allClub = ['Overall', pull_club('MOE', 'Foil')[:5]]
+    allClub = ['Overall', pull_club(club, 'Foil')[:5]]
     chunk2 = [[ageGroups[x], byAge[x]] for x in range(3)]
     chunk3 = [[ageGroups[x], byAge[x]] for x in range(3,5)] + [allClub]
     batch = [byRank, chunk2, chunk3]
@@ -174,20 +186,45 @@ def home5():
                             batch = batch)
 
 
-@app.route('/top100', methods=['GET'] )
-def top100():
-    user_id=session['user_id']
-    #text = request.args[user_id]
-    name, preds = model.display_top_100(user_id)
-    return render_template('top100.html',
-                            user_id = user_id,
-                            pred = preds)
-
-
 @app.route('/feedback', methods=['POST'])
 def feedback():
     helpful = request.form['helpful']
     user_id = session['user_id']
+
+@app.route('/moe', methods=['GET'])
+@app.route('/MOE', methods=['GET'])
+def moe():
+    weapons = results.find({'club':'MOE'}).distinct('weapon')
+    weapons = '|'.join(weapons)
+    return redirect("/test?club=MOE&weapons="+weapons)
+
+@app.route('/test', methods=['GET'])
+def monthlies():
+    club = request.args.get('club')
+    weapons = request.args.get('weapons').split('|')
+    month, batch1 = pull_month_winners(club, weapons)
+    #print(batch1[0])
+    col_width, batch2 = season_leaders(club, weapons)
+    return render_template('club_home.html',
+                            col_width = col_width,
+                            club = club,
+                            month = month,
+                            batch1 = batch1[0],
+                            batch2 = batch2)
+
+@app.route('/month', methods=['GET'])
+def full_month():
+    club = request.args.get('club')
+    year = int(request.args.get('year'))
+    month = request.args.get('month')
+    month, batch = pull_month(club, month, year)
+    for item in batch:
+        print(item)
+    return render_template('month_template.html',
+                            club = club,
+                            month = month,
+                            batch = batch)
+
 
 
 if __name__ == '__main__':

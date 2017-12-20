@@ -16,13 +16,76 @@ db = client['fencing']
 fencers = db['fencers']
 results = db['results']
 
-season_cutoff = datetime(2017, 6, 15)
+season_cutoff = datetime(2017, 7, 15)
+next_season = datetime(2018, 7, 15)
 
 categories = [
 ['A', 'B'],
 ['C', 'D'],
 ['E', 'U'],
 ]
+
+ages = [
+[1999, 2005],
+[2002, 2005],
+[2003, 2006],
+[2005, 2008],
+[2007, 2010]
+]
+
+weapons = [
+'Foil',
+'Epee',
+'Saber'
+]
+
+months = {
+    1:'January',
+    2:'February',
+    3:'March',
+    4:'April',
+    5:'May',
+    6:'June',
+    7:'July',
+    8:'August',
+    9:'September',
+    10:'October',
+    11:'November',
+    12:'December'
+}
+
+month_to_num = {
+    'January':1,
+    'February':2,
+    'March':3,
+    'April':4,
+    'May':5,
+    'June':6,
+    'July':7,
+    'August':8,
+    'September':9,
+    'October':10,
+    'November':11,
+    'December':12
+}
+
+year_to_name = {
+1999: 'Junior',
+2002: 'Cadet',
+2003: 'Y14',
+2005: 'Y12',
+2007: 'Y10',
+}
+
+cat_to_string = {
+'A' : 'A + B',
+'C' : 'C + D',
+'E' : 'E + U'
+}
+
+sub = {'_id': 'No Competitor',
+        'events': 0,
+        'total': 0}
 
 def award_points(place, size):
     """
@@ -166,7 +229,7 @@ def update_club(club_id):
         if scrape_page(i, club_id) == False:
             return "Updated"
 
-def pull_club(club_set, weapon_set):
+def pull_club(club_set, weapon_set, start_date = season_cutoff, end_date = next_season):
     """
     club_set and weapon_set are str or list
     returns mongo aggregate of all fencers for the club ordered by total points
@@ -182,7 +245,8 @@ def pull_club(club_set, weapon_set):
         {"$match": {
         "club": {'$in' : club_set}}},
         {"$match": {
-        "date": {'$gte' : season_cutoff}}},
+        "date": {'$gte' : start_date,
+                '$lt': end_date}}},
         {"$match": {
         "weapon": {'$in' : weapon_set}}},
 
@@ -289,12 +353,6 @@ def create_fencers(list_of_names, club):
         except:
             print('Error on', name)
 
-categories = [
-['A', 'B'],
-['C', 'D'],
-['E', 'U'],
-]
-
 def rating_groups(category, weapon, fencers_list):
     """
     category = list
@@ -316,6 +374,10 @@ def rating_groups(category, weapon, fencers_list):
         except:
             pass
 
+    while len(current) < 3:
+
+        current.append(sub)
+
     return current
 
 def pull_fencer(fencer):
@@ -327,7 +389,7 @@ def pull_fencer(fencer):
 
     # {'date': {'$gte': season_cutoff}},
 
-    return firstLast, list(results.find({'name':fencer, 'date': {'$gte': season_cutoff}},
+    temp = list(results.find({'name':fencer, 'date': {'$gte': season_cutoff}},
                          {'_id':0,
                          'date': 1,
                          'tourney': 1,
@@ -340,6 +402,12 @@ def pull_fencer(fencer):
                           'total':1,
                           'url':1
                          } ))
+
+    for fencer in temp:
+        tdate = fencer['date']
+        fencer['date'] = str(tdate.month) + '/' + str(tdate.day) + '/' + str(tdate.year)
+
+    return firstLast, temp
 
 def age_groups(category, fencers_list):
 
@@ -356,4 +424,115 @@ def age_groups(category, fencers_list):
         except:
             pass
 
+    while len(current) < 3:
+
+        current.append(sub)
+
     return current
+
+def pull_month_winners(club, weapons):
+    month = datetime.today().month - 1
+    year = datetime.today().year
+
+    if month == 1:
+        year -= 1
+
+    start = datetime(year, month, 1)
+    end = datetime(year, month+1, 1)
+    rating_output = []
+    age_output = []
+    for weapon in weapons:
+        temp = []
+        for cat in categories:
+            raw = pull_club(club, weapon, start_date = start, end_date = end)
+
+            temp.append([cat_to_string[cat[0]], weapon, rating_groups(cat, weapon.lower(), raw)[0]])
+
+
+        rating_output.append(temp)
+
+        temp = []
+
+        for age in ages:
+            raw = pull_club(club, weapon, start_date = start, end_date = end)
+            try:
+                temp.append([year_to_name[age[0]], weapon, age_groups(age, raw)[0]])
+            except IndexError:
+                sub = {'_id': 'No Competitor',
+                        'events': 0,
+                        'total': 0}
+
+                temp.append([year_to_name[age[0]], weapon, sub])
+        age_output.append(temp)
+
+    return months[month], [rating_output, age_output]
+
+def season_leaders(club, weapons=['Foil', 'Epee', 'Saber']):
+    rating_output = []
+    age_output = []
+    col_width = 12 / len(weapons)
+
+    sub = {'_id': 'No Competitor',
+            'events': 0,
+            'total': 0}
+
+    for weapon in weapons:
+        temp = []
+        for cat in categories:
+            raw = pull_club(club, weapon)
+            try:
+                temp.append([cat_to_string[cat[0]], weapon, rating_groups(cat, weapon.lower(), raw)[0:3]])
+            except IndexError:
+
+                temp.append([cat_to_string[cat[0]], weapon, sub])
+
+            # while len(temp) < 3:
+            #     temp.append([cat_to_string[cat[0]], weapon, sub])
+
+
+
+        rating_output.append(temp)
+
+        temp = []
+
+        for age in ages:
+            raw = pull_club(club, weapon)
+            try:
+                temp.append([year_to_name[age[0]], weapon, age_groups(age, raw)[0:3]])
+            except IndexError:
+
+                temp.append([year_to_name[age[0]], weapon, sub])
+
+            # while len(temp) < 3:
+            #     temp.append([year_to_name[age[0]], weapon, sub])
+
+        age_output.append(temp)
+
+    return int(col_width), [rating_output, age_output]
+
+def pull_month(club, month, year):
+    month = month_to_num[month]
+    start = datetime(year, month, 1)
+    end = datetime(year, month+1, 1)
+    rating_output = []
+    age_output = []
+    for weapon in weapons:
+        temp = []
+        for cat in categories:
+            raw = pull_club(club, weapon, start_date = start, end_date = end)
+
+            temp.append([cat_to_string[cat[0]], weapon, rating_groups(cat, weapon.lower(), raw)])
+
+
+        rating_output.append(temp)
+
+        temp = []
+
+        for age in ages:
+            raw = pull_club(club, weapon, start_date = start, end_date = end)
+
+            temp.append([year_to_name[age[0]], weapon, age_groups(age, raw)])
+
+        age_output.append(temp)
+
+    return months[month], [rating_output, age_output]
