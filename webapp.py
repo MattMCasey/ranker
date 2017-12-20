@@ -131,59 +131,59 @@ def by_rating():
                                 preds = preds
                                 )
 
-@app.route('/')
-def home5():
-    '''
-    Creates an index page with plaintext submission.
-    '''
-    club = request.args.get('club')
-    categories = [
-    ['A', 'B'],
-    ['C', 'D'],
-    ['E', 'U'],
-    ]
-
-    byRank = []
-
-    for cat in categories:
-        header = " + ".join(cat)
-        piece = rating_groups(cat, 'foil', pull_club(club, 'Foil'))
-        if len(piece) > 5:
-            piece = piece[:5]
-        byRank.append([header, piece])
-
-    ageGroups = [
-    'Junior',
-     'Cadet',
-     'Y14',
-      'Y12',
-      'Y10']
-
-    ages = [
-    [1999, 2005],
-    [2002, 2005],
-    [2003, 2006],
-    [2005, 2008],
-    [2007, 2010]
-    ]
-
-    byAge = []
-
-    for age in ages:
-        piece = age_groups(age, pull_club(club, 'Foil'))
-        if len(piece) > 5:
-            piece = piece[:5]
-        byAge.append(piece)
-
-    #byAge=zip(ageGroups, byAge)
-
-    allClub = ['Overall', pull_club(club, 'Foil')[:5]]
-    chunk2 = [[ageGroups[x], byAge[x]] for x in range(3)]
-    chunk3 = [[ageGroups[x], byAge[x]] for x in range(3,5)] + [allClub]
-    batch = [byRank, chunk2, chunk3]
-
-    return render_template('5home.html',
-                            batch = batch)
+# @app.route('/')
+# def home5():
+#     '''
+#     Creates an index page with plaintext submission.
+#     '''
+#     club = request.args.get('club')
+#     categories = [
+#     ['A', 'B'],
+#     ['C', 'D'],
+#     ['E', 'U'],
+#     ]
+#
+#     byRank = []
+#
+#     for cat in categories:
+#         header = " + ".join(cat)
+#         piece = rating_groups(cat, 'foil', pull_club(club, 'Foil'))
+#         if len(piece) > 5:
+#             piece = piece[:5]
+#         byRank.append([header, piece])
+#
+#     ageGroups = [
+#     'Junior',
+#      'Cadet',
+#      'Y14',
+#       'Y12',
+#       'Y10']
+#
+#     ages = [
+#     [1999, 2005],
+#     [2002, 2005],
+#     [2003, 2006],
+#     [2005, 2008],
+#     [2007, 2010]
+#     ]
+#
+#     byAge = []
+#
+#     for age in ages:
+#         piece = age_groups(age, pull_club(club, 'Foil'))
+#         if len(piece) > 5:
+#             piece = piece[:5]
+#         byAge.append(piece)
+#
+#     #byAge=zip(ageGroups, byAge)
+#
+#     allClub = ['Overall', pull_club(club, 'Foil')[:5]]
+#     chunk2 = [[ageGroups[x], byAge[x]] for x in range(3)]
+#     chunk3 = [[ageGroups[x], byAge[x]] for x in range(3,5)] + [allClub]
+#     batch = [byRank, chunk2, chunk3]
+#
+#     return render_template('5home.html',
+#                             batch = batch)
 
 
 @app.route('/feedback', methods=['POST'])
@@ -191,6 +191,7 @@ def feedback():
     helpful = request.form['helpful']
     user_id = session['user_id']
 
+@app.route('/', methods=['GET'])
 @app.route('/moe', methods=['GET'])
 @app.route('/MOE', methods=['GET'])
 def moe():
@@ -221,6 +222,7 @@ def full_month():
     for item in batch:
         print(item)
     return render_template('month_template.html',
+                            year = year,
                             club = club,
                             month = month,
                             batch = batch)
