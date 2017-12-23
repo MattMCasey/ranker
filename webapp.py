@@ -186,10 +186,10 @@ def by_rating():
 #                             batch = batch)
 
 
-@app.route('/feedback', methods=['POST'])
-def feedback():
-    helpful = request.form['helpful']
-    user_id = session['user_id']
+# @app.route('/feedback', methods=['POST'])
+# def feedback():
+#     helpful = request.form['helpful']
+#     user_id = session['user_id']
 
 @app.route('/', methods=['GET'])
 @app.route('/moe', methods=['GET'])
@@ -203,30 +203,52 @@ def moe():
 def monthlies():
     club = request.args.get('club')
     weapons = request.args.get('weapons').split('|')
-    month, batch1 = pull_month_winners(club, weapons)
+    lastmonth = datetime.today().month - 1
+    year = datetime.today().year
+    if lastmonth == 0:
+        lastmonth += 12
+        year -=1
+
+    month, batch1 = pull_month_winners(club, weapons, lastmonth, year)
     #print(batch1[0])
     col_width, batch2 = season_leaders(club, weapons)
+    # for thing in batch2:
+    #     print(thing, '\n')
     return render_template('club_home.html',
                             col_width = col_width,
                             club = club,
                             month = month,
-                            batch1 = batch1[0],
+                            batch1 = batch1,
                             batch2 = batch2)
 
 @app.route('/month', methods=['GET'])
-def full_month():
+def current_month():
     club = request.args.get('club')
-    year = int(request.args.get('year'))
+    year = request.args.get('year')
     month = request.args.get('month')
-    month, batch = pull_month(club, month, year)
-    for item in batch:
-        print(item)
+    weapons = results.find({'club':club}).distinct('weapon')
+
+
+    #print(weapons)
+    month, batch = pull_month(club, weapons, month, year)
+    div = 1
+    col_width = 12//len(batch)
     return render_template('month_template.html',
+                            col_width = col_width,
                             year = year,
                             club = club,
                             month = month,
                             batch = batch)
 
+@app.route('/month_winners', methods=['GET'])
+def month_winners():
+    club = 'MOE'
+    month_list = month_by_month(club)
+    col_width = 12//len(results.find({'club' : club}).distinct('weapon'))
+    return render_template('month_winners.html',
+                            club = club,
+                            col_width = col_width,
+                            month_list = month_list)
 
 
 if __name__ == '__main__':

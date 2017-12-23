@@ -9,29 +9,37 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 {% include 'nav.html' %}
-{{header}}
 <body>
   <div class="container" style=max-width:700px;>
   <h1>{{club}} {{month}} Winners</h1>
+  <a href="month?club={{club}}&month={{month}}&year=2017">See full {{month}} leaderboard.</a>
 </div>
 
 <div class="container" style=max-width:700px;>
+  <p></p>
 
-    {% for weapon in batch1 %}
+{% for weapon in batch1 %}
         <div class="col-sm-{{col_width}}">
         <table class="table table-striped">
+
         <th>{{weapon[0][1]}}</th>
-        {% for sub in weapon %}
+        {% for cat in weapon %}
         <tr>
-        <td><i>{{sub[0]}}</i> : <a href="/fencer?fencer={{sub[2]['_id']}}">{{sub[2]['_id']}}</a></td>
+          {% if cat[2]['_id'] == 'No Competitor' %}
+          <td><i>{{cat[0]}}</i> : No Competitor</td>
+
+          {% else %}
+        <td><i>{{cat[0]}}</i> : <a href="/fencer?fencer={{cat}}">{{cat[2]['_id']}}</a></td>
       </tr>
+      {% endif %}
       {% endfor %}
     </table>
 
 
     </div>
     {% endfor %}
-    <a href="month?club={{club}}&month={{month}}&year=2017">See full {{month}} leaderboard.</a>
+
+
     </div>
 
 
@@ -39,32 +47,34 @@
     <h1>{{club}} Season Leaders</h1>
     </div>
 
-    {% for division in batch2 %}
+    {% for weapon in batch2 %}
     <div class="container" style=max-width:700px;>
 
-        {% for weapon in division %}
             <div class="col-sm-{{col_width}}">
 
               <h2>{{weapon[0][1]}}</h2>
             {% for sub in weapon %}
             <table class="table table-striped">
 
-            <th><a href="/full_list?club={{club}}&weapon={{sub[1]}}&group={{sub[0]}}">{{sub[1]}} {{sub[0]}}</a></th>
-            <th>Points</th>
+
+            <th><a href="/full_list?club={{club}}&weapon={{sub[1]}}&group={{sub[0]}}"><i>{{sub[0]}}</i></a></th>
+            <th class="col-sm-1">Points</th>
 
 
 
             {% for fencer in sub[2] %}
 
             <tr>
-              {% if fencer == false %}
-
-
+              {% if fencer['_id'] == 'No Competitor' %}
               <td>No Competitor</td>
-              <td>0</td>
-              {% endif %}
+              <td>-</td>
+
+              {% else %}
+
               <td><a href="/fencer?fencer={{fencer['_id']}}">{{fencer['_id']}}</a></td>
               <td>{{fencer['total']}}</td>
+
+              {% endif %}
             </tr>
             {% endfor %}
 
@@ -75,7 +85,7 @@
         </div>
         {% endfor %}
         </div>
-{% endfor %}
+
 
 
 </body>

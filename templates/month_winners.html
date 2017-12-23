@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Club Standings</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+{% include 'nav.html' %}
+<body>
+{% for months in month_list %}
+  <div class="container" style=max-width:700px;>
+  <h1>{{club}} {{months[0]}} Winners</h1>
+  <a href="month?club={{club}}&month={{months[0]}}&year=2017">See full {{month}} leaderboard.</a>
+</div>
+
+<div class="container" style=max-width:700px;>
+  <p></p>
+
+{% for weapon in months[1] %}
+        <div class="col-sm-{{col_width}}">
+        <table class="table table-striped">
+
+        <th>{{weapon[0][1]}}</th>
+        {% for cat in weapon %}
+        <tr>
+          {% if cat[2]['_id'] == 'No Competitor' %}
+          <td><i>{{cat[0]}}</i> : No Competitor</td>
+
+          {% else %}
+
+
+          <td><i>{{cat[0]}}</i> : <a href="/fencer?fencer={{cat[2]['_id']}}">{{cat[2]['_id']}}</a></td>
+          {% endif %}
+
+        </tr>
+
+      {% endfor %}
+    </table>
+
+
+    </div>
+{% endfor %}
+  </div>
+{% endfor %}
+
+</body>
+</html>

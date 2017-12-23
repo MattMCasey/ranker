@@ -10,36 +10,40 @@
 </head>
 {% include 'nav.html' %}
 <body>
-  {% for division in batch %}
+
     <div class="container" style=max-width:700px;>
     <h1>{{club}} {{month}} Standings</h1>
     </div>
 
 
     <div class="container" style=max-width:700px;>
-
-        {% for weapon in division %}
-            <div class="col-sm-4">
+      {% for weapon in batch %}
+            <div class="col-sm-{{col_width}}">
+              <h3>{{weapon[0][1]}}</h3>
 
 
             {% for sub in weapon %}
+
             <table class="table table-striped">
 
-            <th><a href="/full_list?club={{club}}&weapon={{sub[1]}}&group={{sub[0]}}">{{sub[1]}} {{sub[0]}}</a></th>
-            <th>Points</th>
+            <th><a href="/full_list?club={{club}}&weapon={{sub[1]}}&group={{sub[0]}}">{{sub[0]}}</a></th>
+            <th class="col-sm-2">Events</th>
+            <th class="col-sm-2">Points</th>
 
 
 
             {% for fencer in sub[2] %}
 
             <tr>
-              {% if fencer == false %}
-
-
+              {% if fencer['_id'] == 'No Competitor' %}
               <td>No Competitor</td>
-              <td>0</td>
-              {% endif %}
+
+              {% else %}
+
+
               <td><a href="/fencer?fencer={{fencer['_id']}}">{{fencer['_id']}}</a></td>
+              {% endif %}
+              <td>{{fencer['events']}}</td>
               <td>{{fencer['total']}}</td>
             </tr>
             {% endfor %}
@@ -51,7 +55,7 @@
         </div>
         {% endfor %}
         </div>
-{% endfor %}
+
 
 
 
