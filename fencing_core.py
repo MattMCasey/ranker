@@ -523,10 +523,12 @@ def season_leaders(club, weapons=['Foil', 'Epee', 'Saber']):
 
 def pull_month(club, weapons, month, year):
     #print('XXXXXXXX\n\n\n\n', month)
-    if type(month) == str:
-        month = int(month_to_num[month])
+    if type(month) == str or type(month) == unicode:
+        month = month_to_num[month]
+    month = int(month)
     year = int(year)
-    print('month', month, 'year', year)
+    #:print('month', month, 'year', year)
+    print('month', type(month), 'year', type(year))
     start = datetime(year, month, 1)
     endmonth = month + 1
     endyear = year
