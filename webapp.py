@@ -258,6 +258,7 @@ def moe():
     return redirect("/test?club=MOE&weapons="+weapons)
 
 @app.route('/riverside', methods=['GET'])
+@app.route('/RIVERSIDE', methods=['GET'])
 def riverside():
     weapons = results.find({'club':'RIVERSIDE'}).distinct('weapon')
     weapons = '|'.join(weapons)
