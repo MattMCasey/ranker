@@ -29,7 +29,7 @@
           <td><i>{{cat[0]}}</i> : No Competitor</td>
 
           {% else %}
-        <td><i>{{cat[0]}}</i> : <a href="/fencer?fencer={{cat}}">{{cat[2]['_id']}}</a></td>
+        <td><i>{{cat[0]}}</i> : <a href="/fencer?fencer={{cat[2]['_id']}}">{{cat[2]['_id']}}</a></td>
       </tr>
       {% endif %}
       {% endfor %}
