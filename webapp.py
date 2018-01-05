@@ -232,7 +232,10 @@ def current_month():
     #print(weapons)
     month, batch = pull_month(club, weapons, month, year)
     div = 1
-    col_width = 12//len(batch)
+    den = len(batch)
+    if den == 0:
+        den += 1
+    col_width = 12//den
     return render_template('month_template.html',
                             col_width = col_width,
                             year = year,
