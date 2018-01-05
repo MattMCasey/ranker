@@ -191,14 +191,6 @@ def by_rating():
 #     helpful = request.form['helpful']
 #     user_id = session['user_id']
 
-@app.route('/', methods=['GET'])
-@app.route('/moe', methods=['GET'])
-@app.route('/MOE', methods=['GET'])
-def moe():
-    weapons = results.find({'club':'MOE'}).distinct('weapon')
-    weapons = '|'.join(weapons)
-    return redirect("/test?club=MOE&weapons="+weapons)
-
 @app.route('/test', methods=['GET'])
 def monthlies():
     club = request.args.get('club')
@@ -245,7 +237,7 @@ def current_month():
 
 @app.route('/month_winners', methods=['GET'])
 def month_winners():
-    club = 'MOE'
+    club = request.args.get('club')
     month_list = month_by_month(club)
     col_width = 12//len(results.find({'club' : club}).distinct('weapon'))
     return render_template('month_winners.html',
@@ -253,6 +245,23 @@ def month_winners():
                             col_width = col_width,
                             month_list = month_list)
 
+"""
+BELOW FOLLOWS CLUB-SPECIFIC PAGES
+"""
+
+@app.route('/', methods=['GET'])
+@app.route('/moe', methods=['GET'])
+@app.route('/MOE', methods=['GET'])
+def moe():
+    weapons = results.find({'club':'MOE'}).distinct('weapon')
+    weapons = '|'.join(weapons)
+    return redirect("/test?club=MOE&weapons="+weapons)
+
+@app.route('/riverside', methods=['GET'])
+def riverside():
+    weapons = results.find({'club':'RIVERSIDE'}).distinct('weapon')
+    weapons = '|'.join(weapons)
+    return redirect("/test?club=RIVERSIDE&weapons="+weapons)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
