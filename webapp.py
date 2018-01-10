@@ -7,7 +7,8 @@ from pymongo import MongoClient
 import pymongo
 import time
 from pprint import pprint
-from fencing_core import *
+from page_utilities import *
+from club_homes import *
 app.secret_key = 'datascience'
 
 #Post Data Request:
@@ -193,6 +194,7 @@ def by_rating():
 
 @app.route('/test', methods=['GET'])
 def monthlies():
+
     club = request.args.get('club')
     weapons = request.args.get('weapons').split('|')
     lastmonth = datetime.today().month - 1
@@ -201,12 +203,16 @@ def monthlies():
         lastmonth += 12
         year -=1
 
+    month_total = club_points_month(club, lastmonth, year)
+    season_total = club_points(club)
     month, batch1 = pull_month_winners(club, weapons, lastmonth, year)
-    #print(batch1[0])
+    print('from webapp', month_total)
     col_width, batch2 = season_leaders(club, weapons)
     # for thing in batch2:
     #     print(thing, '\n')
     return render_template('club_home.html',
+                            month_total = month_total,
+                            season_total = season_total,
                             col_width = col_width,
                             club = club,
                             month = month,
@@ -228,7 +234,10 @@ def current_month():
     if den == 0:
         den += 1
     col_width = 12//den
+
+    points = club_points_month(club, month, year)
     return render_template('month_template.html',
+                            points = points,
                             col_width = col_width,
                             year = year,
                             club = club,
@@ -245,24 +254,7 @@ def month_winners():
                             col_width = col_width,
                             month_list = month_list)
 
-"""
-BELOW FOLLOWS CLUB-SPECIFIC PAGES
-"""
 
-@app.route('/', methods=['GET'])
-@app.route('/moe', methods=['GET'])
-@app.route('/MOE', methods=['GET'])
-def moe():
-    weapons = results.find({'club':'MOE'}).distinct('weapon')
-    weapons = '|'.join(weapons)
-    return redirect("/test?club=MOE&weapons="+weapons)
-
-@app.route('/riverside', methods=['GET'])
-@app.route('/RIVERSIDE', methods=['GET'])
-def riverside():
-    weapons = results.find({'club':'RIVERSIDE'}).distinct('weapon')
-    weapons = '|'.join(weapons)
-    return redirect("/test?club=RIVERSIDE&weapons="+weapons)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
