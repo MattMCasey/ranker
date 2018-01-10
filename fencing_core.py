@@ -253,7 +253,7 @@ def create_fencers(list_of_names, club):
 def daily_updater():
     hour = datetime.today().hour
     trigger_hour = 14
-    print(hour, trigger hour)
+    print(hour, trigger_hour)
     while True:
         if hour == trigger_hour:
             print('updating')
