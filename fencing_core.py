@@ -251,7 +251,7 @@ def create_fencers(list_of_names, club):
             print('Error on', name)
 
 def daily_updater():
-    hour = datetime.today().hour
+    hour = datetime.today().hour - 5
     trigger_hour = 14
     print(hour, trigger_hour)
     while True:
