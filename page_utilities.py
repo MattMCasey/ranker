@@ -278,6 +278,7 @@ def club_points(club, start=season_cutoff, end=next_season):
     {
     '$match':{
     '$and': [
+        { 'club': club },
         { 'date': { '$gte': start } },
         { 'date': { '$lt': end } }
     ]
