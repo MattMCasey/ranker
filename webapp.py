@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, session, redirect
+from flask import request, render_template, session, redirect
+from flask import Flask
 app = Flask(__name__)
 #import pandas as pd
 #import numpy as np

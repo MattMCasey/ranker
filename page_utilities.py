@@ -215,7 +215,7 @@ def season_leaders(club, weapons=['Foil', 'Epee', 'Saber']):
     return int(col_width), agg
 
 def month_getter(month, year):
-        if type(month) == str or type(month) == unicode:
+        if type(month) == str: #or type(month) == unicode:
             month = month_to_num[month]
         month = int(month)
         year = int(year)
