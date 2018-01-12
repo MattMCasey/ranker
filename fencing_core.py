@@ -260,7 +260,7 @@ def daily_updater():
             print('updating')
             for club_id in club_ids:
                 update_club(club_id)
-            yesterday = date.today() - timedelta(1)
+            yesterday = datetime.today() - timedelta(1)
             for club in results.find({'date': {'$gte': yesterday}}).distinct('club'):
                 fencers = results.find({'club': club, 'date': {'$gte': yesterday}}).distinct('name')
                 create_fencers(fencers, club)
