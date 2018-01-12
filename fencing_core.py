@@ -91,6 +91,8 @@ def extract_details(line):
 
     if results.find_one({'date': date, 'name':name, 'tourney':tourney, 'event':event }) != None:
 
+        print('This happens?')
+
         results.insert_one({
         'date':date,
         'tourney':tourney,
@@ -140,10 +142,7 @@ def scrape_page(num, club_id):
     odds = souped.select('tr.oddrow')
 
     for i in range(len(odds)):
-        try:
-            extract_details(evens[i])
-            extract_details(odds[i])
-        except:
+        if extract_details(evens[i]) == False or extract_details(odds[i]) == False:
             return False
 
 def update_club(club_id):
@@ -254,7 +253,7 @@ def create_fencers(list_of_names, club):
 
 def daily_updater():
     hour = datetime.today().hour - 5
-    trigger_hour = 11
+    trigger_hour = 12
     print(hour, trigger_hour)
     while True:
         if hour == trigger_hour:
