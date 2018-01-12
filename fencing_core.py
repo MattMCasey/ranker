@@ -267,3 +267,24 @@ def daily_updater():
         else:
             print('awaiting next update')
             time.sleep(60**2)
+
+def daily_updater():
+    hour = datetime.today().hour - 5
+    trigger_hour = 14
+    print(hour, trigger_hour)
+    while True:
+        if hour == trigger_hour:
+            print('updating')
+            for club_id in club_ids:
+                update_club(club_id)
+            yesterday = date.today() - timedelta(1)
+            for club in results.find({'date': {'$gte': yesterday}}).distinct('club'):
+                fencers = results.find({'club': club, 'date': {'$gte': yesterday}}).distinct('name')
+                create_fencers(fencers, club)
+            print('update completed at', datetime.today())
+        else:
+            print('awaiting next update')
+            time.sleep(60**2)
+
+if __name__ == '__main__':
+    daily_updater()
