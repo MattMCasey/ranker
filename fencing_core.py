@@ -89,7 +89,8 @@ def extract_details(line):
 
     print(name, event, place)
 
-    try:
+    if results.find_one({'date': date, 'name':name, 'tourney':tourney, 'event':event }) != None:
+
         results.insert_one({
         'date':date,
         'tourney':tourney,
@@ -106,7 +107,7 @@ def extract_details(line):
         'base': base,
         'total': bonus + base
         })
-    except:
+    else:
         return False
 
 
@@ -249,24 +250,6 @@ def create_fencers(list_of_names, club):
 
         except:
             print('Error on', name)
-
-def daily_updater():
-    hour = datetime.today().hour - 5
-    trigger_hour = 14
-    print(hour, trigger_hour)
-    while True:
-        if hour == trigger_hour:
-            print('updating')
-            for club_id in club_ids:
-                update_club(club_id)
-            yesterday = date.today() - timedelta(1)
-            for club in results.find({'date': {'$gte': yesterday}}).distinct('club'):
-                fencers = results.find({'club': club, 'date': {'$gte': yesterday}}).distinct('name')
-                create_fencers(fencers, club)
-            print('update completed at', datetime.today())
-        else:
-            print('awaiting next update')
-            time.sleep(60**2)
 
 def daily_updater():
     hour = datetime.today().hour - 5
