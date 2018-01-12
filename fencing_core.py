@@ -108,6 +108,7 @@ def extract_details(line):
         'total': bonus + base
         })
     else:
+        print(club, "updated")
         return False
 
 
