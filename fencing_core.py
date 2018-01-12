@@ -270,7 +270,7 @@ def daily_updater():
 
 def daily_updater():
     hour = datetime.today().hour - 5
-    trigger_hour = 14
+    trigger_hour = 11
     print(hour, trigger_hour)
     while True:
         if hour == trigger_hour:
