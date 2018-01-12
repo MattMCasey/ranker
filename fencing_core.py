@@ -265,6 +265,7 @@ def daily_updater():
                 fencers = results.find({'club': club, 'date': {'$gte': yesterday}}).distinct('name')
                 create_fencers(fencers, club)
             print('update completed at', datetime.today())
+            time.sleep(60**2)
         else:
             print('awaiting next update')
             time.sleep(60**2)
