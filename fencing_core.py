@@ -157,7 +157,7 @@ def update_club(club_id):
     for i in range(1, 25):
         print(i)
         if scrape_page(i, club_id) == False:
-            return "Updated"
+            print("Updated")
 
 
 
