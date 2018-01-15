@@ -88,11 +88,8 @@ def extract_details(line):
     bonus, base = award_points(place, size)
 
     print(name, event, place)
-    print(results.find_one({'date': date, 'name':name, 'tourney':tourney, 'event':event }))
 
     if results.find_one({'date': date, 'name':name, 'tourney':tourney, 'event':event }) == None:
-
-        print('This happens?')
 
         results.insert_one({
         'date':date,
@@ -259,8 +256,13 @@ def create_fencers(list_of_names, club):
             print('Error on', name)
 
 def daily_updater():
-    hour = datetime.today().hour - 5
-    trigger_hour = -5
+    """
+    This function runs from the __name__ == '__main__' input
+    It sits in a screen and checks for new results once per day
+    No input
+    """
+    hour = datetime.today().hour
+    trigger_hour = 8
     print(hour, trigger_hour)
     while True:
         if hour == trigger_hour:
