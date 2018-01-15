@@ -320,7 +320,7 @@ def month_by_month(club):
         #print(pull_month_winners(club, weapons, 2017, 11), year, month)
         mnth, agg = pull_month_winners(club, weapons, lmonth, lyear)
         points = club_points_month(club, lmonth, lyear)
-        month_list.append((mnth, agg, points))
+        month_list.append((mnth, agg, points, lyear))
         #print((mnth, agg))
         # month, agg = pull_month_winners(club, weapons, lmonth, lyear)
 
