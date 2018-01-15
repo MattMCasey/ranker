@@ -142,7 +142,10 @@ def scrape_page(num, club_id):
     odds = souped.select('tr.oddrow')
 
     for i in range(len(odds)):
-        if extract_details(evens[i]) == False or extract_details(odds[i]) == False:
+        try:
+            if extract_details(evens[i]) == False or extract_details(odds[i]) == False:
+                return False
+        except:
             return False
 
 def update_club(club_id):
