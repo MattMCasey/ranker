@@ -89,7 +89,7 @@ def extract_details(line):
 
     print(name, event, place)
 
-    if results.find_one({'date': date, 'name':name, 'tourney':tourney, 'event':event }) != None:
+    if results.find_one({'date': date, 'name':name, 'tourney':tourney, 'event':event }) == None:
 
         print('This happens?')
 
