@@ -144,8 +144,10 @@ def scrape_page(num, club_id):
     for i in range(len(odds)):
         try:
             if extract_details(evens[i]) == False or extract_details(odds[i]) == False:
+                print("scrape_page try")
                 return False
         except:
+            print("scrape_page except")
             return False
 
 def update_club(club_id):
