@@ -279,5 +279,23 @@ def daily_updater():
             print('awaiting next update')
             time.sleep(60**2)
 
+def create_club(club):
+    """
+    Utility to create club preferences
+    """
+    clubs.insrt_one({
+    'name':club, #to be str
+    'club_ids':None, #list of ints
+    'age_groups':None, #list of two-item lists - [[int1, int2], [int3, int4]]
+    'age_group_names':None, #dict with lower year in age range and name - {int1:'junior', int3:'senior'}
+    'rating_groups':None, #list of lists with ratings in them
+    'rating_group_names':None, #dict of lowest rating in category to cat name
+    'excluded_fencers':None, #list of strings, names of fencers not included in ladder
+    'club_goals':None #dict, months = keys, int = goal - {month:goal, month: goal}
+    })
+
+def update_club(club, field, entry):
+    pass
+
 if __name__ == '__main__':
     daily_updater()

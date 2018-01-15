@@ -90,28 +90,35 @@ def by_rating():
     club = request.args.get('club')
     group = request.args.get('group')
     weapon = request.args.get('weapon')
+    weapons = [weapon]
     #print(weapon)
     group = lookup[group]
 
     if group == 'Overall':
         name = group
         preds = pull_club(club, weapon)
+        print(weapon)
+        points = club_points(club, weapons)
+        print(points)
         return render_template('category.html',
                                 club = club,
                                 weapon = weapon,
                                 rating = name,
-                                preds = preds
+                                preds = preds,
+                                points = points
                                 )
 
     elif type(group[0]) == str:
         print(weapon)
         name = " + ".join(group)
         preds = rating_groups(group, weapon.lower(), pull_club(club, weapon))
+        points = club_points(club, weapons)
         return render_template('category.html',
                                 weapon = weapon,
                                 club = club,
                                 rating = name,
-                                preds = preds
+                                preds = preds,
+                                points = points
                                 )
 
     elif type(group[0]) == int:
@@ -125,12 +132,14 @@ def by_rating():
 
         name = year_to_name[group[0]]
         preds = age_groups(group, pull_club(club, weapon))
+        points = club_points(club, weapons)
         print(weapon)
         return render_template('category.html',
                                 weapon = weapon,
                                 club = club,
                                 rating = name,
-                                preds = preds
+                                preds = preds,
+                                points = points
                                 )
 
 # @app.route('/')
@@ -204,8 +213,9 @@ def monthlies():
         lastmonth += 12
         year -=1
 
-    month_total = club_points_month(club, lastmonth, year)
-    season_total = club_points(club)
+    print('MONTHLIES', weapons)
+    month_total = club_points_month(club, weapons, lastmonth, year)
+    season_total = club_points(club, weapons)
     month, batch1 = pull_month_winners(club, weapons, lastmonth, year)
     print('from webapp', month_total)
     col_width, batch2 = season_leaders(club, weapons)
@@ -236,7 +246,7 @@ def current_month():
         den += 1
     col_width = 12//den
 
-    points = club_points_month(club, month, year)
+    points = club_points_month(club, weapons, month, year)
     return render_template('month_template.html',
                             points = points,
                             col_width = col_width,

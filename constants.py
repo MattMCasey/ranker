@@ -6,6 +6,7 @@ client = MongoClient()
 db = client['fencing']
 fencers = db['fencers']
 results = db['results']
+clubs = db['clubs']
 
 season_cutoff = datetime(2017, 7, 15)
 next_season = datetime(2018, 7, 15)
@@ -18,17 +19,19 @@ club_standards = {
 }
 
 categories = [
-['A', 'B'],
-['C', 'D'],
-['E', 'U'],
+# ['A', 'B'],
+# ['C', 'D'],
+# ['E', 'U'],
 ]
 
 ages = [
-[1999, 2005],
-[2002, 2005],
-[2003, 2006],
-[2005, 2008],
-[2007, 2010]
+# [1999, 2005],
+# [2002, 2005],
+# [2003, 2006],
+# [2005, 2008],
+# [2007, 2010]
+[2004, 2018],
+[1900, 2003]
 ]
 
 weapons = [
@@ -73,6 +76,8 @@ year_to_name = {
 2003: 'Y14',
 2005: 'Y12',
 2007: 'Y10',
+2004: 'Youth',
+1900: 'Senior'
 }
 
 cat_to_string = {

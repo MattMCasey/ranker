@@ -154,9 +154,6 @@ def pull_month_winners(club, weapons, month, year):
             except:
                 temp.append([cat_to_string[cat[0]], weapon, sub])
 
-
-
-
         for age in ages:
             raw = pull_club(club, weapon, start_date = start, end_date = end)
             try:
@@ -272,11 +269,12 @@ def pull_month(club, weapons, month, year):
     #print(month, months)
     return month, agg
 
-def club_points(club, start=season_cutoff, end=next_season):
+def club_points(club, weapons = ['Foil', 'Epee', 'Saber'], start=season_cutoff, end=next_season):
 
     pipeline = [
     {
     '$match':{
+    "weapon": {'$in' : weapons}, #
     '$and': [
         { 'club': club },
         { 'date': { '$gte': start } },
@@ -293,9 +291,9 @@ def club_points(club, start=season_cutoff, end=next_season):
     for result in results.aggregate(pipeline):
         return result['total']
 
-def club_points_month(club, month, year):
+def club_points_month(club, weapons, month, year):
     start, end = month_getter(month, year)
-    return club_points(club, start, end)
+    return club_points(club, weapons, start, end)
 
 def month_by_month(club):
     """
@@ -318,8 +316,9 @@ def month_by_month(club):
             lyear += 1
 
         #print(pull_month_winners(club, weapons, 2017, 11), year, month)
+        print(weapons)
         mnth, agg = pull_month_winners(club, weapons, lmonth, lyear)
-        points = club_points_month(club, lmonth, lyear)
+        points = club_points_month(club, weapons, lmonth, lyear)
         month_list.append((mnth, agg, points, lyear))
         #print((mnth, agg))
         # month, agg = pull_month_winners(club, weapons, lmonth, lyear)
