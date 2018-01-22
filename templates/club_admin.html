@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Club Standings</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+{% include 'nav.html' %}
+<body>
+  <script type="text/javascript">
+  function submitform()
+  {
+    document.forms["remove"].submit();;
+  }
+  </script>
+  <div class="container" style=max-width:700px;>
+  <h1>{{clubt}} Settings</h1>
+</div>
+
+<div class="container" style=max-width:700px;>
+  <p></p>
+
+<h2>Age Groups</h2>
+  <i><p>Age groups default to USA Fencing age groups unless otherwise specified.
+    If you specify one age group you would like to use, you must specify all age
+    groups you would like to use.</p></i>
+  {% if club_dict['age_groups'] == None %}
+    <p>Default</p>
+    {% else %}
+
+      {% for group in club_dict['age_groups'] %}
+      <form id='remove' name="remove" action="/club_update?club={{club}}" method="post">
+      <p>{{club_dict['age_group_names'][group[0]]}}, {{group}}
+
+        <input type="hidden" name="year1" value="{{group[0]}}">
+        <input type="hidden" name="year2" value="{{group[1]}}">
+        <input type="hidden" name="group_name" value="{{club_dict['age_group_names'][group[0]]}}">
+        <input type="hidden" name="delete" value="True">
+        <a href="javascript: submitform()">Remove</a>
+
+        </form>
+
+      </p>
+
+      {% endfor %}
+  {% endif %}
+
+   <h3><i>Add New Age Group</i></h3>
+
+    <form class="form-inline" action="/club_update?club={{club}}" method="post">
+    <div class="form-group">
+      <label for="exampleSelect1">Start Year</label>
+      <select class="form-control" type="int" name="year1">
+        {% for year in years %}
+        <option>{{year}}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="exampleSelect1">End Year</label>
+      <select class="form-control" type="int" name="year2">
+        {% for year in years %}
+        <option>{{year}}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <label class="sr-only" for="inlineFormInputGroup">Group Name</label>
+    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+      <input type="text" class="form-control" type="text" name="group_name" placeholder="Group Name">
+    </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<h2>Rating Groups</h2>
+<i><p>Rating groups default to A + B, C + D, E + U, unless otherwise specified.
+  If you specify one age group you would like to use, you must specify all age
+  groups you would like to use.</p></i>
+
+  {% if club_dict['rating_groups'] == None %}
+    <p>Default</p>
+    {% else %}
+
+      {% for group in club_dict['rating_groups'] %}
+
+      <form id='remove' name="remove" action="/club_update?club={{club}}" method="post">
+      <p>{{group}}
+
+        {% for entry in group %}
+
+        <input type="hidden" name="{{entry}}" value="{{entry}}">
+
+        {% endfor %}
+
+        <input type="hidden" name="delete" value="True">
+        <a href="javascript: submitform()">Remove</a></p>
+
+        </form>
+
+
+      {% endfor %}
+
+  {% endif %}
+
+  <h3><i>Add New Rating Group</i></h3>
+
+  {% for x in range(1) %}
+  <b>Group {{x + 1}} </b>
+
+
+  <form class="form-inline" action="/club_update?club={{club}}" method="post">
+
+    <div class="form-check form-check-inline">
+    {% for rating in ['U', 'E', 'D', 'C', 'B', 'A' ] %}
+
+  <label class="form-check-label">
+    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="{{rating}}" value="{{rating}}"> {{rating}}
+  </label>
+
+    {% endfor %}
+    </div>
+  {% endfor %}
+  <p></p>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<h2>Excluded Fencers</h2>
+  <i><p>Excluded fencers will not have their results displayed on the club's ladder,
+    though their points will still count toward club goals.</p></i>
+  {% if club_dict['excluded_fencers'] == None %}
+    <p>None</p>
+
+    {% else %}
+
+      {% for fencer in club_dict['excluded_fencers'] %}
+
+      <form id='remove' name="remove" action="/club_update?club={{club}}" method="post">
+      <p>{{fencer}}
+
+        <input type="hidden" name="name" value="{{fencer}}">
+
+        <input type="hidden" name="delete" value="True">
+        <a href="javascript: submitform()">Remove</a></p>
+
+        </form>
+
+      {% endfor %}
+
+  {% endif %}
+
+  {% for x in range(1) %}
+    <form class="form-inline" action="/club_update?club={{club}}" method="post">
+    <div class="form-group">
+      <label class="sr-only" for="inlineFormInputGroup">Last Name</label>
+      <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+        <input type="text" class="form-control" id="inlineFormInputGroup" name=last_name placeholder="Last Name">
+      </div>
+
+    <label class="sr-only" for="inlineFormInputGroup">First Name</label>
+    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+      <input type="text" class="form-control" id="inlineFormInputGroup" name=first_name placeholder="First Name">
+    </div>
+    <p></p>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<h2>Club Goals</h2>
+
+  <form class="form" action="/club_update?club={{club}}" method="post">
+  {% for month in ['Jan',
+                  'Feb',
+                  'Mar',
+                  'Apr',
+                  'May',
+                  'Jun',
+                  'Jul',
+                  'Aug',
+                  'Sep',
+                  'Oct',
+                  'Nov',
+                  'Dec'] %}
+
+
+  <div class="form-group" >
+    <label class="sr-only" for="inlineFormInputGroup">{{month}}</label>
+    <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+      <div class="input-group-addon" style="width:50px">{{month}}</div>
+      <input type="text" class="form-control" id="inlineFormInputGroup" name={{month}}
+      placeholder="{{club_dict['club_goals'][month]}}">
+    </div>
+    <p></p>
+
+  {% endfor %}
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+
+
+</div>
+
+
+
+</body>
+</html>

@@ -142,6 +142,9 @@ def by_rating():
                                 points = points
                                 )
 
+
+
+
 # @app.route('/')
 # def home5():
 #     '''
@@ -217,7 +220,7 @@ def monthlies():
     month_total = club_points_month(club, weapons, lastmonth, year)
     season_total = club_points(club, weapons)
     month, batch1 = pull_month_winners(club, weapons, lastmonth, year)
-    print('from webapp', month_total)
+    #print('from webapp', month_total)
     col_width, batch2 = season_leaders(club, weapons)
     # for thing in batch2:
     #     print(thing, '\n')
@@ -255,7 +258,7 @@ def current_month():
                             month = month,
                             batch = batch)
 
-@app.route('/month_winners', methods=['GET'])
+@app.route('/month_winners', methods=['GET', 'POST'])
 def month_winners():
     club = request.args.get('club')
     month_list = month_by_month(club)
@@ -265,7 +268,36 @@ def month_winners():
                             col_width = col_width,
                             month_list = month_list)
 
+@app.route('/club_admin', methods=['GET'] )
+def club_admin():
+    club = request.args.get('club')
+    club_dict = clubs.find_one({'name':club})
 
+    return render_template('club_admin.html',
+                            clubt = club.title(),
+                            club = club,
+                            years = years,
+                            club_dict = club_dict)
+
+@app.route('/club_update', methods=['GET', 'POST'] )
+def club_update():
+    club = request.args.get('club')
+    posted = request.form
+    keys = []
+    stage_update(club, posted)
+    # print(list(posted.keys()))
+    # print(posted)
+    # for k in posted:
+    #     print(k)
+    #     print(request.form[k])
+
+    return redirect("/club_admin?club="+club)
+
+
+    # return render_template('club_admin.html',
+    #                         club = club.title(),
+    #                         years = years,
+    #                         club_dict = club_dict)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)

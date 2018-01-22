@@ -283,19 +283,85 @@ def create_club(club):
     """
     Utility to create club preferences
     """
-    clubs.insrt_one({
+    month_dict = {month:0 for month in months_3}
+
+    clubs.insert_one({
     'name':club, #to be str
     'club_ids':None, #list of ints
-    'age_groups':None, #list of two-item lists - [[int1, int2], [int3, int4]]
-    'age_group_names':None, #dict with lower year in age range and name - {int1:'junior', int3:'senior'}
-    'rating_groups':None, #list of lists with ratings in them
-    'rating_group_names':None, #dict of lowest rating in category to cat name
-    'excluded_fencers':None, #list of strings, names of fencers not included in ladder
-    'club_goals':None #dict, months = keys, int = goal - {month:goal, month: goal}
+    'age_groups':[], #list of two-item lists - [[int1, int2], [int3, int4]]
+    'age_group_names':{}, #dict with lower year in age range and name - {int1:'junior', int3:'senior'}
+    'rating_groups':[], #list of lists with ratings in them
+    'rating_group_names':{}, #dict of lowest rating in category to cat name
+    'excluded_fencers':[], #list of strings, names of fencers not included in ladder
+    'club_goals':month_dict #dict, months = keys, int = goal - {month:goal, month: goal}
     })
 
+def stage_update(club, posted, delete=False):
+    fields = ['age_groups', 'age_group_names', 'rating_groups',
+                'excluded_fencers', 'club_goals']
+    keys = list(posted.keys())
+    club_dict = clubs.find_one({'name':club})
+
+    print(posted)
+
+    if 'delete' in keys:
+        delete = True
+
+    if 'year1' in keys:
+        field1 = fields[0]
+        new_group = [[ posted['year1'], posted['year2'] ]]
+        old_group = club_dict['age_groups']
+        entry = old_group + new_group
+        if delete:
+            entry = [x for x in old_group if x not in new_group]
+        update_club(club, field1, entry)
+
+        field2 = fields[1]
+        name = posted['group_name']
+        old_group = club_dict['age_group_names']
+        new_group = {posted['year1']: name}
+        entry = {**new_group, **old_group}
+        if delete:
+            entry = {k:v for k,v in old_group.items() if k not in new_group or v != new_group[k]}
+        update_club(club, field2, entry)
+
+    elif keys[0] in ratings:
+        new_group = [[x for x in keys if x != 'delete']]
+        old_group = club_dict['rating_groups']
+        entry = old_group + new_group
+        if delete:
+            #entry = old_group.remove(new_group)
+            entry = [x for x in old_group if x not in new_group]
+            print(new_group)
+            print(entry)
+        update_club(club, fields[2], entry)
+
+    elif 'Jan' in keys:
+        entry = {}
+        for key in keys:
+            if posted[key] != '':
+                entry[key] = int(posted[key])
+        old = club_dict['club_goals']
+        entry = {**old, **entry}
+        update_club(club, fields[4], entry)
+
+    else:
+        old = club_dict['excluded_fencers']
+        if delete:
+            new = posted['name']
+            entry = [x for x in old if x != new]
+        else:
+            new = posted['last_name'].strip() + ', ' + posted['first_name'].strip()
+            entry = old + [new]
+
+        update_club(club, fields[3], entry)
+
+
 def update_club(club, field, entry):
-    pass
+    if clubs.find_one({'name':club}) == None:
+        create_club(club)
+
+    clubs.update_one({'name':club}, {'$set':{field : entry}})
 
 if __name__ == '__main__':
     daily_updater()

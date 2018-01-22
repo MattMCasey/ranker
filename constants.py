@@ -18,20 +18,18 @@ club_standards = {
 'MWFC' : 'MOE'
 }
 
-categories = [
-# ['A', 'B'],
-# ['C', 'D'],
-# ['E', 'U'],
+d_categories = [
+['A', 'B'],
+['C', 'D'],
+['E', 'U'],
 ]
 
-ages = [
-# [1999, 2005],
-# [2002, 2005],
-# [2003, 2006],
-# [2005, 2008],
-# [2007, 2010]
-[2004, 2018],
-[1900, 2003]
+d_ages = [
+[1999, 2005],
+[2002, 2005],
+[2003, 2006],
+[2005, 2008],
+[2007, 2010]
 ]
 
 weapons = [
@@ -70,15 +68,15 @@ month_to_num = {
     'December':12
 }
 
-year_to_name = {
+d_year_to_name = {
 1999: 'Junior',
 2002: 'Cadet',
 2003: 'Y14',
 2005: 'Y12',
-2007: 'Y10',
-2004: 'Youth',
-1900: 'Senior'
+2007: 'Y10'
 }
+
+ratings = ['A', 'B', 'C', 'D', 'E', 'U']
 
 cat_to_string = {
 'A' : 'A + B',
@@ -89,3 +87,18 @@ cat_to_string = {
 sub = {'_id': 'No Competitor',
         'events': 0,
         'total': 0}
+
+years = [y for y in range(2018, 1940, -1)]
+
+months_3 = ['Jan',
+              'Feb',
+              'Mar',
+              'Apr',
+              'May',
+              'Jun',
+              'Jul',
+              'Aug',
+              'Sep',
+              'Oct',
+              'Nov',
+              'Dec']
