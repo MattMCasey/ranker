@@ -261,10 +261,11 @@ def daily_updater():
     It sits in a screen and checks for new results once per day
     No input
     """
-    hour = datetime.today().hour
-    trigger_hour = 8
-    print(hour, trigger_hour)
+
     while True:
+        hour = datetime.today().hour
+        trigger_hour = 8
+        print('hour:', hour, 'trigger hour:', trigger_hour)
         if hour == trigger_hour:
             print('updating')
             for club_id in club_ids:
