@@ -11,13 +11,14 @@ from datetime import datetime
 import time
 from collections import Counter, defaultdict
 from constants import *
+from fencing_core import *
 
 def get_club_dict(club):
     club = club.lower()
 
-    try:
+    if clubs.find_one({'name':club}) != None:
         return clubs.find_one({'name':club})
-    except:
+    else:
         create_club(club)
         return clubs.find_one({'name':club})
 
@@ -296,6 +297,17 @@ def pull_month(club, weapons, month, year):
     # end = datetime(endyear, endmonth, 1)
     #print(end)
     agg = []
+
+    categories = d_categories
+    ages = d_ages
+    year_to_name = d_year_to_name
+
+    if get_club_dict(club.lower())['rating_groups'] != []:
+        categories = get_club_dict(club)['rating_groups']
+
+    if get_club_dict(club.lower())['age_groups'] != []:
+        ages = get_club_dict(club)['age_groups']
+        year_to_name = get_club_dict(club)['age_group_names']
 
     for weapon in weapons:
         temp = []

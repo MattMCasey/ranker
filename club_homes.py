@@ -6,7 +6,6 @@ import time
 from pprint import pprint
 from fencing_core import *
 
-@app.route('/', methods=['GET'])
 @app.route('/moe', methods=['GET'])
 @app.route('/MOE', methods=['GET'])
 def moe():

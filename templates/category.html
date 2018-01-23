@@ -21,13 +21,19 @@
             </div>
             <ul class="nav navbar-nav">
               <li class="active"><a href="/full_list?club={{club}}&weapon={{weapon}}&group=Overall">{{club}} {{weapon}}</a></li>
-              <li><a href="/full_list?club={{club}}&weapon={{weapon}}&group=A B">A+B</a></li>
-              <li><a href="/full_list?club={{club}}&weapon={{weapon}}&group=C D">B+C</a></li>
-              <li><a href="/full_list?club={{club}}&weapon={{weapon}}&group=E U">E+U</a></li>
-              <li><a href="/full_list?club={{club}}&weapon={{weapon}}&group=Y10">Y10</a></li>
-              <li><a href="/full_list?club={{club}}&weapon={{weapon}}&group=Y12">Y12</a></li>
-              <li><a href="/full_list?club={{club}}&weapon={{weapon}}&group=Cadet">Cadet</a></li>
-              <li><a href="/full_list?club={{club}}&weapon={{weapon}}&group=Junior">Junior</a></li>
+
+              {% for cat in age_cats %}
+
+              <li><a href="/full_list?club={{club}}&weapon={{weapon}}&group={{cat}}">{{cat}}</a></li>
+
+              {% endfor %}
+
+              {% for cat in rating_cats %}
+
+              <li><a href="/full_list?club={{club}}&weapon={{weapon}}&group={{cat}}">{{cat}}</a></li>
+
+              {% endfor %}
+
             </ul>
           </div>
         </nav>

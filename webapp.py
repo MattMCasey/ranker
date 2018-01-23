@@ -76,23 +76,40 @@ def fencer():
 
 @app.route('/full_list', methods=['GET'] )
 def by_rating():
-    lookup = {'A B': ['A', 'B'],
-              'C D': ['C', 'D'],
-              'E U': ['E', 'U'],
-              'Junior': [1999, 2005],
-              'Cadet': [2002, 2005],
-              'Y14': [2003, 2006],
-              'Y12': [2005, 2008],
-              'Y10': [2007, 2010],
-              'Overall': 'Overall'
-            }
+
+
+    # lookup = {'A B': ['A', 'B'],
+    #           'C D': ['C', 'D'],
+    #           'E U': ['E', 'U'],
+    #           'Junior': [1999, 2005],
+    #           'Cadet': [2002, 2005],
+    #           'Y14': [2003, 2006],
+    #           'Y12': [2005, 2008],
+    #           'Y10': [2007, 2010],
+    #           'Overall': 'Overall'
+    #         }
 
     club = request.args.get('club')
+    club_dict = clubs.find_one({'name':club})
+    rating_cats = d_categories
+    age_cats = [d_year_to_name[k] for k in d_year_to_name]
+    year_to_name = d_year_to_name
+
+    if get_club_dict(club.lower())['rating_groups'] != []:
+        categories = get_club_dict(club.lower())['rating_groups']
+
+    if get_club_dict(club.lower())['age_group_names'] != {}:
+        age_cats = [get_club_dict(club.lower())['age_group_names'][k] for k in get_club_dict(club.lower())['age_group_names']]
+        year_to_name ={get_club_dict(club.lower())['age_group_names'][k]:int(k) for k in get_club_dict(club.lower())['age_group_names']}
+
+
     group = request.args.get('group')
     weapon = request.args.get('weapon')
     weapons = [weapon]
     #print(weapon)
-    group = lookup[group]
+    # group = lookup[group]
+    print(type(group))
+    print(group)
 
     if group == 'Overall':
         name = group
@@ -101,6 +118,8 @@ def by_rating():
         points = club_points(club, weapons)
         print(points)
         return render_template('category.html',
+                                age_cats = age_cats,
+                                rating_cats = rating_cats,
                                 club = club,
                                 weapon = weapon,
                                 rating = name,
@@ -108,35 +127,71 @@ def by_rating():
                                 points = points
                                 )
 
-    elif type(group[0]) == str:
-        print(weapon)
-        name = " + ".join(group)
-        preds = rating_groups(group, weapon.lower(), pull_club(club, weapon))
+    elif group[0] == '[':
+        name = group[1:-1]
+        bucket = []
+
+        for rating in group:
+            if rating in ['A', 'B', 'C', 'D', 'E', 'U']:
+                bucket.append(rating)
+
+        print(bucket)
+
+        preds = rating_groups(bucket, weapon.lower(), pull_club(club, weapon))
         points = club_points(club, weapons)
         return render_template('category.html',
-                                weapon = weapon,
+                                age_cats = age_cats,
+                                rating_cats = rating_cats,
                                 club = club,
+                                weapon = weapon,
+                                rating = name,
+                                preds = preds,
+                                points = points
+                                )
+
+    elif type(group) == str:
+        print(weapon)
+        name = group
+        buckets = []
+
+        for key in get_club_dict(club)['age_group_names']:
+            print('key', get_club_dict(club)['age_group_names'][key])
+            print('group', group)
+            if get_club_dict(club)['age_group_names'][key] == group:
+                buckets = [key]
+                for thing in get_club_dict(club)['age_groups']:
+                    print(thing)
+                    if buckets[0] == thing[0]:
+                        buckets = thing
+        print(buckets)
+        for x in range(len(buckets)):
+            buckets[x] = int(buckets[x])
+
+        print('should be int', buckets)
+
+        preds = age_groups(buckets, pull_club(club, weapon))
+        points = club_points(club, weapons)
+        return render_template('category.html',
+                                age_cats = age_cats,
+                                rating_cats = rating_cats,
+                                club = club,
+                                weapon = weapon,
                                 rating = name,
                                 preds = preds,
                                 points = points
                                 )
 
     elif type(group[0]) == int:
-        year_to_name = {
-        1999: 'Junior',
-        2002: 'Cadet',
-        2003: 'Y14',
-        2005: 'Y12',
-        2007: 'Y10',
-        }
 
         name = year_to_name[group[0]]
         preds = age_groups(group, pull_club(club, weapon))
         points = club_points(club, weapons)
         print(weapon)
         return render_template('category.html',
-                                weapon = weapon,
+                                age_cats = age_cats,
+                                rating_cats = rating_cats,
                                 club = club,
+                                weapon = weapon,
                                 rating = name,
                                 preds = preds,
                                 points = points
@@ -261,6 +316,7 @@ def current_month():
 @app.route('/month_winners', methods=['GET', 'POST'])
 def month_winners():
     club = request.args.get('club')
+    club_dict = clubs.find_one({'name':club})
     month_list = month_by_month(club)
     col_width = 12//len(results.find({'club' : club}).distinct('weapon'))
     return render_template('month_winners.html',
@@ -292,6 +348,10 @@ def club_update():
     #     print(request.form[k])
 
     return redirect("/club_admin?club="+club)
+
+@app.route('/', methods=['GET'])
+def home_page():
+    return render_template('home.html')
 
 
     # return render_template('club_admin.html',
