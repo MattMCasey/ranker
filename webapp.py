@@ -96,7 +96,7 @@ def by_rating():
     year_to_name = d_year_to_name
 
     if get_club_dict(club.lower())['rating_groups'] != []:
-        categories = get_club_dict(club.lower())['rating_groups']
+        rating_cats = get_club_dict(club.lower())['rating_groups']
 
     if get_club_dict(club.lower())['age_group_names'] != {}:
         age_cats = [get_club_dict(club.lower())['age_group_names'][k] for k in get_club_dict(club.lower())['age_group_names']]
