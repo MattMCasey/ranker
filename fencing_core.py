@@ -332,7 +332,12 @@ def stage_update(club, posted, delete=False):
         entry = old_group + new_group
         if delete:
             #entry = old_group.remove(new_group)
-            entry = [x for x in old_group if x not in new_group]
+            print('old_group', old_group, 'new_group', new_group)
+            entry = []
+            for x in old_group:
+                if x != new_group[0]:
+                    entry.append(x)
+
             print(new_group)
             print(entry)
         update_club(club, fields[2], entry)
