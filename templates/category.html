@@ -49,7 +49,7 @@
           </tr>
         {% for game in preds %}
           <tr>
-          <td><b><a href = "/fencer?fencer={{game['_id']}}">{{game['_id']}}</a></b></td>
+          <td><b><a href = "/fencer?fencer={{game['_id']}}&club={{club}}">{{game['_id']}}</a></b></td>
           <td>{{game['events']}}</td>
 
           <td>{{game['base']}}</td>

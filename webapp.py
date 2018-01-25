@@ -65,10 +65,12 @@ def index():
 
 @app.route('/fencer', methods=['GET'] )
 def fencer():
+    club = request.args.get('club')
     fencer = request.args.get('fencer')
     name, preds = pull_fencer(fencer)
     fencer = fencers.find_one({'name' : fencer})
     return render_template('fencer.html',
+                            club = club,
                             name = name,
                             fencer = fencer,
                             pred = preds

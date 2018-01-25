@@ -261,6 +261,14 @@ def daily_updater():
     It sits in a screen and checks for new results once per day
     No input
     """
+    print('updating')
+    for club_id in club_ids:
+        update_club(club_id)
+    yesterday = datetime.today() - timedelta(5)
+    for club in results.find({'date': {'$gte': yesterday}}).distinct('club'):
+        fencers = results.find({'club': club, 'date': {'$gte': yesterday}}).distinct('name')
+        create_fencers(fencers, club)
+    print('update completed at', datetime.today())
 
     while True:
         hour = datetime.today().hour
