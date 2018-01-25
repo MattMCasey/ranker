@@ -335,7 +335,7 @@ def stage_update(club, posted, delete=False):
             print('old_group', old_group, 'new_group', new_group)
             entry = []
             for x in old_group:
-                if x != new_group[0]:
+                if set(x) != set(new_group[0]):
                     entry.append(x)
 
             print(new_group)
