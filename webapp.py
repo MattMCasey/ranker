@@ -154,23 +154,39 @@ def by_rating():
         name = group
         buckets = []
 
-        for key in get_club_dict(club)['age_group_names']:
-            print('key', get_club_dict(club)['age_group_names'][key])
-            print('group', group)
-            if get_club_dict(club)['age_group_names'][key] == group:
+        age_cats = d_ages
+        year_to_name = d_year_to_name
+        print('age_cats1', age_cats)
+        print('year_to_name1', year_to_name)
+
+        if get_club_dict(club.lower())['age_group_names'] != {}:
+            age_cats = get_club_dict(club.lower())['age_groups']
+            year_to_name = get_club_dict(club.lower())['age_group_names']
+
+        print('year_to_name2', year_to_name)
+        print('age_cats2', age_cats)
+        #print('group names dict', get_club_dict(club)['age_group_names'])
+
+        for key in year_to_name:
+            # print(key)
+            # print('key', year_to_name[key])
+            # print('group', group)
+            if year_to_name[key] == group:
                 buckets = [key]
-                for thing in get_club_dict(club)['age_groups']:
-                    print(thing)
+                for thing in age_cats:
+                    #print('thing', thing)
+                    #print('age_cats', age_cats)
                     if buckets[0] == thing[0]:
-                        buckets = thing
+                        buckets.append(thing[1])
         print(buckets)
         for x in range(len(buckets)):
             buckets[x] = int(buckets[x])
 
-        print('should be int', buckets)
+        #print('should be int', buckets)
 
         preds = age_groups(buckets, pull_club(club, weapon))
         points = club_points(club, weapons)
+        age_cats = [year_to_name[x[0]] for x in age_cats]
         return render_template('category.html',
                                 age_cats = age_cats,
                                 rating_cats = rating_cats,
@@ -181,21 +197,23 @@ def by_rating():
                                 points = points
                                 )
 
-    elif type(group[0]) == int:
-
-        name = year_to_name[group[0]]
-        preds = age_groups(group, pull_club(club, weapon))
-        points = club_points(club, weapons)
-        print(weapon)
-        return render_template('category.html',
-                                age_cats = age_cats,
-                                rating_cats = rating_cats,
-                                club = club,
-                                weapon = weapon,
-                                rating = name,
-                                preds = preds,
-                                points = points
-                                )
+    # elif type(group[0]) == int:
+    #
+    #     name = year_to_name[group[0]]
+    #     preds = age_groups(group, pull_club(club, weapon))
+    #     points = club_points(club, weapons)
+    #
+    #
+    #
+    #     return render_template('category.html',
+    #                             age_cats = age_cats,
+    #                             rating_cats = rating_cats,
+    #                             club = club,
+    #                             weapon = weapon,
+    #                             rating = name,
+    #                             preds = preds,
+    #                             points = points
+    #                             )
 
 
 
