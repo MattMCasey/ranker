@@ -340,6 +340,7 @@ def club_update():
     club = request.args.get('club')
     posted = request.form
     keys = []
+    print('club_update', posted)
     stage_update(club, posted)
     # print(list(posted.keys()))
     # print(posted)
@@ -347,7 +348,7 @@ def club_update():
     #     print(k)
     #     print(request.form[k])
 
-    return redirect("/club_admin?club="+club)
+    return redirect( "/club_admin?club=" + club)
 
 @app.route('/', methods=['GET'])
 def home_page():
