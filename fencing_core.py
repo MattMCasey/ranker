@@ -148,7 +148,7 @@ def scrape_page(num, club_id):
             print("scrape_page except")
             return False
 
-def update_club(club_id):
+def update_club_results(club_id):
     """
     club_id is an interger
     this drives the update process
@@ -263,7 +263,7 @@ def daily_updater():
     """
     print('updating')
     for club_id in club_ids:
-        update_club(club_id)
+        update_club_results(club_id)
     yesterday = datetime.today() - timedelta(5)
     for club in results.find({'date': {'$gte': yesterday}}).distinct('club'):
         fencers = results.find({'club': club, 'date': {'$gte': yesterday}}).distinct('name')
@@ -277,7 +277,7 @@ def daily_updater():
         if hour == trigger_hour:
             print('updating')
             for club_id in club_ids:
-                update_club(club_id)
+                update_club_results(club_id)
             yesterday = datetime.today() - timedelta(5)
             for club in results.find({'date': {'$gte': yesterday}}).distinct('club'):
                 fencers = results.find({'club': club, 'date': {'$gte': yesterday}}).distinct('name')
