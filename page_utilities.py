@@ -106,6 +106,7 @@ def pull_fencer(fencer):
                          'event':1,
                          'place': 1,
                          'size': 1,
+                         'weapon' : 1,
                           'place': 1,
                           'base': 1,
                           'bonus':1,
