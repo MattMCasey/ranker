@@ -318,7 +318,16 @@ def stage_update(club, posted, delete=False):
 
     if 'year1' in keys:
         field1 = fields[0]
-        new_group = [[ posted['year1'], posted['year2'] ]]
+        years = [ posted['year1'], posted['year2'] ]
+        for year in years:
+            year = int(year)
+        years.sort()
+        for year in years:
+            year = str(year)
+
+
+        new_group = [years]
+        print(new_group, type(new_group))
         old_group = club_dict['age_groups']
         entry = old_group + new_group
         if delete:
@@ -328,7 +337,7 @@ def stage_update(club, posted, delete=False):
         field2 = fields[1]
         name = posted['group_name']
         old_group = club_dict['age_group_names']
-        new_group = {posted['year1']: name}
+        new_group = {years[0]: name}
         entry = {**new_group, **old_group}
         if delete:
             entry = {k:v for k,v in old_group.items() if k not in new_group or v != new_group[k]}

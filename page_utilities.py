@@ -34,6 +34,10 @@ def pull_club(club_set, weapon_set, start_date = season_cutoff, end_date = next_
     if type(weapon_set) != list:
         weapon_set = [weapon_set]
 
+    #print('clubset', club_set, club_set[0])
+
+    excluded_fencers = clubs.find_one({'name':club_set[0].lower()})['excluded_fencers']
+
     filt = [
         {"$match": {
         "club": {'$in' : club_set}}},
@@ -42,6 +46,9 @@ def pull_club(club_set, weapon_set, start_date = season_cutoff, end_date = next_
                 '$lt': end_date}}},
         {"$match": {
         "weapon": {'$in' : weapon_set}}},
+
+        {"$match": {
+        "name": {'$nin' : excluded_fencers}}},
 
         {"$group":
             {
@@ -161,6 +168,8 @@ def pull_month_winners(club, weapons, month, year):
 
     if get_club_dict(club.lower())['rating_groups'] != []:
         categories = get_club_dict(club)['rating_groups']
+        for x in categories:
+            x.sort()
 
     if get_club_dict(club.lower())['age_groups'] != []:
         ages = get_club_dict(club)['age_groups']
@@ -205,6 +214,8 @@ def season_leaders(club, weapons=['Foil', 'Epee', 'Saber']):
 
     if get_club_dict(club.lower())['rating_groups'] != []:
         categories = get_club_dict(club)['rating_groups']
+        for x in categories:
+            x.sort()
 
     if get_club_dict(club.lower())['age_groups'] != []:
         ages = get_club_dict(club)['age_groups']
@@ -259,7 +270,7 @@ def cat_to_string(ratings):
         output += ratings[i]
         if i + 1 < len(ratings):
             output += ' + '
-    print('cat_to_string', output)
+    #print('cat_to_string', output)
     return output
 
 def month_getter(month, year):
@@ -305,6 +316,8 @@ def pull_month(club, weapons, month, year):
 
     if get_club_dict(club.lower())['rating_groups'] != []:
         categories = get_club_dict(club)['rating_groups']
+        for x in categories:
+            x.sort()
 
     if get_club_dict(club.lower())['age_groups'] != []:
         ages = get_club_dict(club)['age_groups']
@@ -378,10 +391,12 @@ def month_by_month(club):
             lyear += 1
 
         #print(pull_month_winners(club, weapons, 2017, 11), year, month)
-        print(weapons)
+        #print(weapons)
         mnth, agg = pull_month_winners(club, weapons, lmonth, lyear)
         points = club_points_month(club, weapons, lmonth, lyear)
-        month_list.append((mnth, agg, points, lyear))
+        goal = clubs.find_one({'name':club.lower()})['club_goals'][mnth[:3]]
+        print(goal)
+        month_list.append((mnth, agg, points, lyear, goal))
         #print((mnth, agg))
         # month, agg = pull_month_winners(club, weapons, lmonth, lyear)
 

@@ -99,6 +99,8 @@ def by_rating():
 
     if get_club_dict(club.lower())['rating_groups'] != []:
         rating_cats = get_club_dict(club.lower())['rating_groups']
+        for x in rating_cats:
+            x.sort()
 
     if get_club_dict(club.lower())['age_group_names'] != {}:
         age_cats = [get_club_dict(club.lower())['age_group_names'][k] for k in get_club_dict(club.lower())['age_group_names']]
@@ -325,12 +327,14 @@ def current_month():
     col_width = 12//den
 
     points = club_points_month(club, weapons, month, year)
+    goal = clubs.find_one({'name':club.lower()})['club_goals'][month[:3]]
     return render_template('month_template.html',
                             points = points,
                             col_width = col_width,
                             year = year,
                             club = club,
                             month = month,
+                            goal = goal,
                             batch = batch)
 
 @app.route('/month_winners', methods=['GET', 'POST'])
