@@ -421,4 +421,7 @@ def update_club(club, field, entry):
     clubs.update_one({'name':club}, {'$set':{field : entry}})
 
 if __name__ == '__main__':
+    """
+    Runs a constant loop. Updates from AskFred once per day.
+    """
     daily_updater()
