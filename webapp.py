@@ -1,16 +1,12 @@
 from flask import request, render_template, session, redirect
 from flask import Flask
 app = Flask(__name__)
-#import pandas as pd
-#import numpy as np
-#import graphlab as gl
 from pymongo import MongoClient
 import pymongo
 import time
 from pprint import pprint
 from page_utilities import *
 from club_homes import *
-app.secret_key = 'datascience'
 
 #Post Data Request:
 #@app.route("/")
@@ -57,7 +53,6 @@ def index():
     pred = pull_club(club, 'Foil')
     #print(pred)
     return render_template('top100.html',
-                            #user_id = user_id,
                             pred = pred,
                             byRank = byRank,
                             byAge = byAge)
@@ -78,25 +73,18 @@ def fencer():
 
 @app.route('/full_list', methods=['GET'] )
 def by_rating():
-
-
-    # lookup = {'A B': ['A', 'B'],
-    #           'C D': ['C', 'D'],
-    #           'E U': ['E', 'U'],
-    #           'Junior': [1999, 2005],
-    #           'Cadet': [2002, 2005],
-    #           'Y14': [2003, 2006],
-    #           'Y12': [2005, 2008],
-    #           'Y10': [2007, 2010],
-    #           'Overall': 'Overall'
-    #         }
-
+    """
+    Populates an HTML page with a drill-down on a single weapon
+    """
     club = request.args.get('club')
     club_dict = clubs.find_one({'name':club})
+    
+    #Populating default cutoffs for age and rankings
     rating_cats = d_categories
     age_cats = [d_year_to_name[k] for k in d_year_to_name]
     year_to_name = d_year_to_name
 
+    #Overwriting defaults if the club has specific settings
     if get_club_dict(club.lower())['rating_groups'] != []:
         rating_cats = get_club_dict(club.lower())['rating_groups']
         for x in rating_cats:
@@ -110,8 +98,7 @@ def by_rating():
     group = request.args.get('group')
     weapon = request.args.get('weapon')
     weapons = [weapon]
-    #print(weapon)
-    # group = lookup[group]
+    
     print(type(group))
     print(group)
 
@@ -201,89 +188,11 @@ def by_rating():
                                 points = points
                                 )
 
-    # elif type(group[0]) == int:
-    #
-    #     name = year_to_name[group[0]]
-    #     preds = age_groups(group, pull_club(club, weapon))
-    #     points = club_points(club, weapons)
-    #
-    #
-    #
-    #     return render_template('category.html',
-    #                             age_cats = age_cats,
-    #                             rating_cats = rating_cats,
-    #                             club = club,
-    #                             weapon = weapon,
-    #                             rating = name,
-    #                             preds = preds,
-    #                             points = points
-    #                             )
-
-
-
-
-# @app.route('/')
-# def home5():
-#     '''
-#     Creates an index page with plaintext submission.
-#     '''
-#     club = request.args.get('club')
-#     categories = [
-#     ['A', 'B'],
-#     ['C', 'D'],
-#     ['E', 'U'],
-#     ]
-#
-#     byRank = []
-#
-#     for cat in categories:
-#         header = " + ".join(cat)
-#         piece = rating_groups(cat, 'foil', pull_club(club, 'Foil'))
-#         if len(piece) > 5:
-#             piece = piece[:5]
-#         byRank.append([header, piece])
-#
-#     ageGroups = [
-#     'Junior',
-#      'Cadet',
-#      'Y14',
-#       'Y12',
-#       'Y10']
-#
-#     ages = [
-#     [1999, 2005],
-#     [2002, 2005],
-#     [2003, 2006],
-#     [2005, 2008],
-#     [2007, 2010]
-#     ]
-#
-#     byAge = []
-#
-#     for age in ages:
-#         piece = age_groups(age, pull_club(club, 'Foil'))
-#         if len(piece) > 5:
-#             piece = piece[:5]
-#         byAge.append(piece)
-#
-#     #byAge=zip(ageGroups, byAge)
-#
-#     allClub = ['Overall', pull_club(club, 'Foil')[:5]]
-#     chunk2 = [[ageGroups[x], byAge[x]] for x in range(3)]
-#     chunk3 = [[ageGroups[x], byAge[x]] for x in range(3,5)] + [allClub]
-#     batch = [byRank, chunk2, chunk3]
-#
-#     return render_template('5home.html',
-#                             batch = batch)
-
-
-# @app.route('/feedback', methods=['POST'])
-# def feedback():
-#     helpful = request.form['helpful']
-#     user_id = session['user_id']
-
 @app.route('/test', methods=['GET'])
 def monthlies():
+    """
+    Populates main club destination page
+    """
 
     club = request.args.get('club')
     weapons = request.args.get('weapons').split('|')
@@ -312,6 +221,9 @@ def monthlies():
 
 @app.route('/month', methods=['GET'])
 def current_month():
+    """
+    Populates results for the chosen month
+    """
     club = request.args.get('club')
     year = request.args.get('year')
     month = request.args.get('month')
@@ -339,6 +251,10 @@ def current_month():
 
 @app.route('/month_winners', methods=['GET', 'POST'])
 def month_winners():
+    """
+    Populaes a page rounding up winners month by month.
+    """
+    
     club = request.args.get('club')
     club_dict = clubs.find_one({'name':club})
     month_list = month_by_month(club)
@@ -350,6 +266,9 @@ def month_winners():
 
 @app.route('/club_admin', methods=['GET'] )
 def club_admin():
+    """
+    Populates a page where club admins can change club settings
+    """
     club = request.args.get('club')
     club_dict = clubs.find_one({'name':club})
 
@@ -361,17 +280,15 @@ def club_admin():
 
 @app.route('/club_update', methods=['GET', 'POST'] )
 def club_update():
+    """
+    Sends update to the database and redirects to the club admin page
+    """
     club = request.args.get('club')
     posted = request.form
     keys = []
     print('club_update', posted)
     stage_update(club, posted)
-    # print(list(posted.keys()))
-    # print(posted)
-    # for k in posted:
-    #     print(k)
-    #     print(request.form[k])
-
+    
     return redirect( "/club_admin?club=" + club)
 
 @app.route('/', methods=['GET'])
