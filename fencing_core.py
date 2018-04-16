@@ -13,9 +13,13 @@ from constants import *
 
 def award_points(place, size):
     """
-    place and size are intergers
-    calculates points from fencing events based
-    on final standing and #rounds survived
+    place = int, the final place that the fencer finished in
+    size = int, the number of fencers in the event
+    
+    calculates the points awarded to a fencer based on their
+    final standing, the number of victories they achieved
+    and the number of fencers in the tournament
+    
     returns base and bonus as two separate numbers
     """
 
@@ -39,8 +43,12 @@ def award_points(place, size):
 
 def extract_details(line):
     """
-    Takes a line from a Beautiful Soup object.
-    While it's fed new information, returns nothing, just updates database
+    line = Beautiful Soup object, a line from AskFred.net
+    
+    Extracts details form AskFred lines and enters them into the
+    results database
+    
+    Returns nothing as its fed new information.
     Returns False when it encounters a dubplicate record
     """
     line = str(line).split('<')
@@ -115,24 +123,26 @@ def extract_details(line):
 def scrape_page(num, club_id):
 
     """
-    Num and club_id are both intergers
-    Has no output as long as extract_details encounters new records
+    num = int, the number of the page to be scraped
+    club_id = int, the club's unqiue identifier
+    
+    Has no return as long as extract_details encounters new records
+    
     Returns False when extract_details returns False
     """
-
 
     page = '''https://askfred.net/Results/search.php?
     ops%5Bfirst_name%5D=first_name&vals%5Bfirst_name%5D=&ops%
     5Blast_name%5D=last_name&vals%5Blast_name%5D=&f%5Bweapon%5D=&ops%
     5Bdate_1%5D=date_1_eq&vals%5Bdate_1%5D=&ops%5Bdate_2%
-    5D=date_2_eq&vals%5Bdate_2%5D=&f%5Bclub_id%5D='''+str(club_id)+'''&f%
+    5D=date_2_eq&vals%5Bdate_2%5D=&f%5Bclub_id%5D=''' + str(club_id) + '''&f%
     5Bcompetitor_division_id%5D=&ops%5Bplace%5D=place_eq&vals%
     5Bplace%5D=&f%5Bevent_gender%5D=&f%5Bage_limit%5D=&f%
     5Bevent_rating_limit%5D=&ops%5Bevent_rating%5D=event_rating_eq&vals%
     5Bevent_rating%5D=&f%5Bis_team%5D=&ops%5Brating_earned%
     5D=eq&vals%5Brating_earned_letter%5D=&vals%5Brating_earned_year%
     5D=&f%5Btournament_name_contains%5D=&search_submit=
-    Search&page_id=2&page_id=3&page_id=4&page_id=3&page_id=2&page_id='''+str(num)
+    Search&page_id=2&page_id=3&page_id=4&page_id=3&page_id=2&page_id=''' + str(num)
 
     raw = requests.get(page)
     souped = BeautifulSoup(raw.content, 'html.parser')
@@ -150,8 +160,8 @@ def scrape_page(num, club_id):
 
 def update_club_results(club_id):
     """
-    club_id is an interger
-    this drives the update process
+    club_id = int, the club's unique identifier
+    
     returns Updated when extract_details and scrape_page return False
     """
     for i in range(1, 25):
@@ -163,51 +173,46 @@ def update_club_results(club_id):
 
 
 def create_fencers(list_of_names, club):
-
+    """
+    list_of_names = list, the list of fencers' names
+    club = str, the club that the fencers belong to
+    
+    Extracts details of the fencers from the USA Fencing membership roster
+    and enters them into the database
+    
+    Returns nothing, prints the name of the fencer if detail extraction fails
+    """
+    
+    #Converts a single name to a list
     if type(list_of_names) != list:
         list_of_names = list(list_of_names)
+    
+    #For later DataFrame trimming
+    tgtCols = [
+                    'Last Name',
+                     'First Name',
+                     'Birthdate',
+                     'Birthdate verified',
+                     'Club 1 Name',
+                     'Club 1 Abbreviation',
+                     'Club 1 ID#',
+                     'Club 2 Name',
+                     'Club 2 Abbreviation',
+                     'Club 2 ID#',
+                     'Gender',
+                     'Member #',
+                     'Member Type',
+                     'Competitive',
+                     'Expiration',
+                     'Saber',
+                     'Epee',
+                     'Foil']
 
-    tgtCols = ['Last Name',
-                         'First Name',
-                         'Birthdate',
-                         'Birthdate verified',
-                         'Club 1 Name',
-                         'Club 1 Abbreviation',
-                         'Club 1 ID#',
-                         'Club 2 Name',
-                         'Club 2 Abbreviation',
-                         'Club 2 ID#',
-                         'Gender',
-                         'Member #',
-                         'Member Type',
-                         'Competitive',
-                         'Expiration',
-                         'Saber',
-                         'Epee',
-                         'Foil']
-
-
+    
     membershipeoy = pd.read_csv('EOY-2017.csv')
     membershipcrnt = pd.read_csv('current_members.csv')
     membership = pd.merge(membershipeoy, membershipcrnt, on=tgtCols, how='outer')
-    membership = membership[['Last Name',
-                             'First Name',
-                             'Birthdate',
-                             'Birthdate verified',
-                             'Club 1 Name',
-                             'Club 1 Abbreviation',
-                             'Club 1 ID#',
-                             'Club 2 Name',
-                             'Club 2 Abbreviation',
-                             'Club 2 ID#',
-                             'Gender',
-                             'Member #',
-                             'Member Type',
-                             'Competitive',
-                             'Expiration',
-                             'Saber',
-                             'Epee',
-                             'Foil']]
+    membership = membership[tgtCols]
     membership = membership.set_index(['Last Name', 'First Name'])
     membership = membership.dropna(thresh=11)
 
@@ -217,8 +222,6 @@ def create_fencers(list_of_names, club):
         #print(lastFirst)
         #print(lastFirst)
         first = lastFirst[1][1:]
-        if first == 'Alex':
-            first = 'Alexander'
         last = lastFirst[0]
         #print(last)
 
@@ -232,7 +235,8 @@ def create_fencers(list_of_names, club):
                 byear = truncated[0]
             else:
                 byear = truncated['Birthdate'][0]
-
+            
+            #Handling inconsistent formatting from source doc
             if type(byear) == str:
                 byear = byear[-4:]
 
@@ -259,38 +263,53 @@ def daily_updater():
     """
     This function runs from the __name__ == '__main__' input
     It sits in a screen and checks for new results once per day
-    No input
+    
+    No input, no return
     """
     print('updating')
+    
     for club_id in club_ids:
         update_club_results(club_id)
+    
     yesterday = datetime.today() - timedelta(5)
+    
     for club in results.find({'date': {'$gte': yesterday}}).distinct('club'):
         fencers = results.find({'club': club, 'date': {'$gte': yesterday}}).distinct('name')
         create_fencers(fencers, club)
+    
     print('update completed at', datetime.today())
 
     while True:
+        
         hour = datetime.today().hour
         trigger_hour = 8
+        
         print('hour:', hour, 'trigger hour:', trigger_hour)
+        
         if hour == trigger_hour:
             print('updating')
+            
             for club_id in club_ids:
                 update_club_results(club_id)
+            
             yesterday = datetime.today() - timedelta(5)
+            
             for club in results.find({'date': {'$gte': yesterday}}).distinct('club'):
                 fencers = results.find({'club': club, 'date': {'$gte': yesterday}}).distinct('name')
                 create_fencers(fencers, club)
+            
             print('update completed at', datetime.today())
             time.sleep(60**2)
+            
         else:
             print('awaiting next update')
             time.sleep(60**2)
 
 def create_club(club):
     """
-    Utility to create club preferences
+    club = str, the club's name
+    
+    creates a default club entry in the club preferences database
     """
     month_dict = {month:0 for month in months_3}
 
@@ -306,6 +325,13 @@ def create_club(club):
     })
 
 def stage_update(club, posted, delete=False):
+    """
+    club = str, club's name
+    posted = dict, dictionary of updates for club preferences
+    delete = boolean
+    
+    updates the club's preferences in the database
+    """
     fields = ['age_groups', 'age_group_names', 'rating_groups',
                 'excluded_fencers', 'club_goals']
     keys = list(posted.keys())
@@ -381,6 +407,14 @@ def stage_update(club, posted, delete=False):
 
 
 def update_club(club, field, entry):
+    """
+    club = str, club's name
+    field = str, the field to be updated
+    entry = variable, the entries to add to the clubs database
+    
+    Update's the club's preferences in the database.
+    Creates club preferences if the club is not already in the database
+    """
     if clubs.find_one({'name':club}) == None:
         create_club(club)
 
